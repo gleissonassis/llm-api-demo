@@ -38,7 +38,7 @@ app = Flask(__name__)
 def home():
     return "Bem-vindo à API de demonstração!"
 
-@app.route('/deebff5f-4fbf-4f06-bcb6-f54a2771c96f/chat/orca', methods=['POST'])
+@app.route('/deebff5f-4fbf-4f06-bcb6-f54a2771c96f/chat/llama2', methods=['POST'])
 def process_json():
     data = request.get_json()  # Recebe o JSON do corpo da requisição
     
@@ -65,8 +65,8 @@ def process_json():
     # Retorna a resposta junto com o thread_id
     return jsonify({"response": response, "thread_id": thread_id})
 
-@app.route('/deebff5f-4fbf-4f06-bcb6-f54a2771c96f/chat/llama2', methods=['POST'])
-def process_json_llama2():
+@app.route('/deebff5f-4fbf-4f06-bcb6-f54a2771c96f/chat/orca', methods=['POST'])
+def process_json_orca():
     data = request.get_json()  # Recebe o JSON do corpo da requisição
     
     # Extrai dados do payload JSON
