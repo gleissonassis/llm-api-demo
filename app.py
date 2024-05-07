@@ -52,4 +52,6 @@ def process_json():
     return jsonify({"response": response, "thread_id": thread_id})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=80)
+
+if __name__ == '__main__':
+    app.run(debug=True, port=8080, host='0.0.0.0')
