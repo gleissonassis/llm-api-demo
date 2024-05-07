@@ -5,6 +5,10 @@ llm = AutoModelForCausalLM.from_pretrained(
     "zoltanctoth/orca_mini_3B-GGUF", model_file="orca-mini-3b.q4_0.gguf"
 )
 
+llm_llama2 = AutoModelForCausalLM.from_pretrained(
+    "TheBloke/Llama-2-7b-Chat-GGUF", model_file="llama-2-7b-chat.Q5_K_M.gguf"
+)
+
 # Dicionário para armazenar o histórico de conversas, limitado a 20 respostas por thread_id
 conversation_history = {}
 
@@ -18,14 +22,51 @@ def get_prompt(system: str, instruction: str, thread_id: str) -> str:
     print(f"Prompt created: {prompt}")
     return prompt
 
+def get_prompt_llam2(system: str, instruction: str, thread_id: str) -> str:
+    history = conversation_history.get(thread_id, [])
+    history_text = " ".join(history)
+    prompt = f"<s>[INST] <<SYS>>\n{system}\n<</SYS>>\n\n"
+    if history:
+        prompt += f"This is the conversation history: {history_text}. Now answer the question: "
+    prompt += f"{instruction}\n\n### Response:\n [/INST]"
+    print(f"Prompt created: {prompt}")
+    return prompt
+
 app = Flask(__name__)
 
 @app.route('/')
 def home():
     return "Bem-vindo à API de demonstração!"
 
-@app.route('/deebff5f-4fbf-4f06-bcb6-f54a2771c96f/chat', methods=['POST'])
+@app.route('/deebff5f-4fbf-4f06-bcb6-f54a2771c96f/chat/orca', methods=['POST'])
 def process_json():
+    data = request.get_json()  # Recebe o JSON do corpo da requisição
+    
+    # Extrai dados do payload JSON
+    system = data.get('system', '')
+    instruction = data.get('instruction', '')
+    thread_id = data.get('thread_id', '')  # Parâmetro thread_id obrigatório
+
+    if not thread_id:
+        return jsonify({"error": "thread_id is required"}), 400
+
+    # Gera o prompt e obtém a resposta do modelo
+    prompt = get_prompt_llam2(system, instruction, thread_id)
+    response = llm_llama2(prompt)
+
+    # Atualiza o histórico da conversa para este thread_id
+    if thread_id in conversation_history:
+        if len(conversation_history[thread_id]) >= 20:
+            conversation_history[thread_id].pop(0)  # Remove a resposta mais antiga se o limite for alcançado
+        conversation_history[thread_id].append(response)
+    else:
+        conversation_history[thread_id] = [response]
+
+    # Retorna a resposta junto com o thread_id
+    return jsonify({"response": response, "thread_id": thread_id})
+
+@app.route('/deebff5f-4fbf-4f06-bcb6-f54a2771c96f/chat/llama2', methods=['POST'])
+def process_json_llama2():
     data = request.get_json()  # Recebe o JSON do corpo da requisição
     
     # Extrai dados do payload JSON
