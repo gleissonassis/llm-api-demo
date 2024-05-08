@@ -2,11 +2,11 @@ from flask import Flask, request, jsonify
 from ctransformers import AutoModelForCausalLM
 
 llm = AutoModelForCausalLM.from_pretrained(
-    "zoltanctoth/orca_mini_3B-GGUF", model_file="orca-mini-3b.q4_0.gguf"
+    "zoltanctoth/orca_mini_3B-GGUF", model_file="orca-mini-3b.q4_0.gguf", device_map = "cuda"
 )
 
 llm_llama2 = AutoModelForCausalLM.from_pretrained(
-    "TheBloke/Llama-2-7b-Chat-GGUF", model_file="llama-2-7b-chat.Q5_K_M.gguf"
+    "TheBloke/Llama-2-7b-Chat-GGUF", model_file="llama-2-7b-chat.Q5_K_M.gguf", device_map = "cuda"
 )
 
 # Dicionário para armazenar o histórico de conversas, limitado a 20 respostas por thread_id
